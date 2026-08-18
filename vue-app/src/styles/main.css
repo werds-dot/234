@@ -3,25 +3,29 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
-  --background: #171614;
-  --foreground: #f5f4f0;
-  --card: #1e1c19;
-  --card-foreground: #f5f4f0;
-  --popover: #1e1c19;
-  --popover-foreground: #f5f4f0;
-  --primary: #d8c2a1;
-  --primary-foreground: #241f16;
-  --secondary: #262420;
-  --secondary-foreground: #f5f4f0;
-  --muted: #232120;
-  --muted-foreground: #9c968c;
-  --accent: #a9d6cf;
-  --accent-foreground: #182420;
-  --destructive: #d9634f;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.12);
-  --ring: #d8c2a1;
+  color-scheme: light;
+  /* Pure-white canvas for the main stage. */
+  --background: #ffffff;
+  --foreground: #2b2a2e;
+  /* Near-white #1: side panels and floating chrome (slightly cooler/darker than background). */
+  --card: #f8f8f9;
+  --card-foreground: #2b2a2e;
+  --popover: #fcfcfd;
+  --popover-foreground: #2b2a2e;
+  --primary: #b8763f;
+  --primary-foreground: #fffaf5;
+  /* Near-white #2: nested cards inside panels, one step darker for clear separation. */
+  --secondary: #eff0f2;
+  --secondary-foreground: #38373b;
+  --muted: #f1f1f3;
+  --muted-foreground: #737278;
+  --accent: #3f8f8a;
+  --accent-foreground: #f4fbfa;
+  --destructive: #c1442c;
+  /* Dark, low-alpha borders so they stay visible against the white/near-white surfaces. */
+  --border: rgba(0, 0, 0, 0.11);
+  --input: rgba(0, 0, 0, 0.14);
+  --ring: #b8763f;
   --radius: 0.75rem;
 }
 

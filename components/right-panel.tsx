@@ -1,6 +1,6 @@
 'use client'
 
-import { Brain, MessageSquareText } from 'lucide-react'
+import { Brain, MessageSquareText, Paperclip } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import type { OrbMode, ProcessLogEntry, TextEntry } from '@/hooks/use-voice-orb'
@@ -62,6 +62,19 @@ export function RightPanel({
               <div key={entry.id} className="rounded-lg border border-border bg-secondary/70 p-2.5">
                 <p className="font-mono text-[10px] text-muted-foreground/70">{formatTime(entry.at)}</p>
                 <p className="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{entry.text}</p>
+                {entry.attachments && entry.attachments.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {entry.attachments.map((name) => (
+                      <span
+                        key={name}
+                        className="inline-flex items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 font-mono text-[9px] text-secondary-foreground"
+                      >
+                        <Paperclip className="size-2.5" />
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
         </div>

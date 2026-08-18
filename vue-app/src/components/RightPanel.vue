@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Brain, MessageSquareText } from 'lucide-vue-next'
+import { Brain, MessageSquareText, Paperclip } from 'lucide-vue-next'
 import type { OrbMode, ProcessLogEntry, TextEntry } from '../composables/useVoiceOrb'
 
 defineProps<{
@@ -52,6 +52,16 @@ function formatTime(at: number) {
         >
           <p class="font-mono text-[10px] text-muted-foreground/70">{{ formatTime(entry.at) }}</p>
           <p class="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{{ entry.text }}</p>
+          <div v-if="entry.attachments?.length" class="mt-1.5 flex flex-wrap gap-1">
+            <span
+              v-for="name in entry.attachments"
+              :key="name"
+              class="inline-flex items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 font-mono text-[9px] text-secondary-foreground"
+            >
+              <Paperclip class="size-2.5" />
+              {{ name }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

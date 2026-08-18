@@ -167,14 +167,19 @@ onMounted(() => {
   // A neutral studio-like environment gives the metallic/iridescent
   // material something to reflect, mirroring drei's "night" preset.
   const pmrem = new THREE.PMREMGenerator(renderer)
-  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.08).texture
 
-  const ambient = new THREE.AmbientLight('#ffffff', 0.15)
-  const key = new THREE.PointLight('#f2f2f5', 10, 0, 0)
+  // Brighter than a pure studio setup: the orb sits inside a dark well,
+  // so it needs enough ambient/fill light to stay visible instead of
+  // dissolving into the backdrop.
+  const ambient = new THREE.AmbientLight('#ffffff', 0.55)
+  const key = new THREE.PointLight('#f5f5f8', 12, 0, 0)
   key.position.set(3, 3, 4)
-  const fill = new THREE.PointLight('#c9ccd4', 5, 0, 0)
+  const fill = new THREE.PointLight('#d8dae0', 8, 0, 0)
   fill.position.set(-3, -2, -3)
-  scene.add(ambient, key, fill)
+  const bounce = new THREE.PointLight('#c9ccd4', 4, 0, 0)
+  bounce.position.set(0, -3, 2)
+  scene.add(ambient, key, fill, bounce)
 
   const geometry = new THREE.IcosahedronGeometry(ORB_RADIUS, 48)
   const created = createLiquidMetalMaterial()

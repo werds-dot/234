@@ -2,7 +2,7 @@ import { reactive, ref } from 'vue'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
-export type TextEntry = { id: number; text: string; at: number }
+export type TextEntry = { id: number; text: string; at: number; attachments?: string[] }
 export type ProcessLogEntry = { id: number; text: string; at: number }
 
 // Plain (non-reactive-by-Vue) audio buffers, read directly inside the
@@ -75,14 +75,17 @@ export function useVoiceOrb() {
     else startMic()
   }
 
-  function speak(text: string) {
+  function speak(text: string, attachments?: string[]) {
     const trimmed = text.trim()
     if (!trimmed) return
 
     // Pause mic listening while speaking to avoid the orb reacting to its own voice.
     const wasListening = mode.value === 'listening'
     lastText.value = trimmed
-    textHistory.value = [...textHistory.value, { id: Date.now(), text: trimmed, at: Date.now() }]
+    textHistory.value = [
+      ...textHistory.value,
+      { id: Date.now(), text: trimmed, at: Date.now(), attachments: attachments?.length ? attachments : undefined },
+    ]
     mode.value = 'thinking'
     pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 

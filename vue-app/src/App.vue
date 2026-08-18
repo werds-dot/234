@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useVoiceOrb } from './composables/useVoiceOrb'
 import OrbScene from './components/OrbScene.vue'
 import DeepWell from './components/DeepWell.vue'
@@ -8,6 +9,10 @@ import RightPanel from './components/RightPanel.vue'
 import VoiceConsole from './components/VoiceConsole.vue'
 
 const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, audio } = useVoiceOrb()
+
+const latestEntry = computed(() =>
+  textHistory.value.length ? textHistory.value[textHistory.value.length - 1] : null,
+)
 </script>
 
 <template>
@@ -26,7 +31,14 @@ const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, audio 
         <OrbScene :audio="audio" />
       </DeepWell>
 
-      <VoiceConsole :mode="mode" :mic-on="micOn" :mic-error="micError" @toggle-mic="toggleMic" @speak="speak" />
+      <VoiceConsole
+        :mode="mode"
+        :mic-on="micOn"
+        :mic-error="micError"
+        :latest-entry="latestEntry"
+        @toggle-mic="toggleMic"
+        @speak="speak"
+      />
     </div>
 
     <TiltedPanel side="right">
