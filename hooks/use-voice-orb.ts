@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
-export type TextEntry = { id: number; text: string; at: number }
+export type TextEntry = { id: number; text: string; at: number; attachments?: string[] }
 export type ProcessLogEntry = { id: number; text: string; at: number }
 
 export type OrbAudioRefs = {
@@ -92,14 +92,17 @@ export function useVoiceOrb() {
   }, [micOn, startMic, stopMic])
 
   const speak = useCallback(
-    (text: string) => {
+    (text: string, attachments?: string[]) => {
       const trimmed = text.trim()
       if (!trimmed) return
 
       // Pause mic listening while speaking to avoid the orb reacting to its own voice.
       const wasListening = modeRef.current === 'listening'
       setLastText(trimmed)
-      setTextHistory((prev) => [...prev, { id: Date.now(), text: trimmed, at: Date.now() }])
+      setTextHistory((prev) => [
+        ...prev,
+        { id: Date.now(), text: trimmed, at: Date.now(), attachments: attachments?.length ? attachments : undefined },
+      ])
       setMode('thinking')
       pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 

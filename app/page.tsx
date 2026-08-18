@@ -33,7 +33,14 @@ export default function Page() {
           <OrbScene audio={refs} />
         </DeepWell>
 
-        <VoiceConsole mode={mode} micOn={micOn} micError={micError} onToggleMic={toggleMic} onSpeak={speak} />
+        <VoiceConsole
+          mode={mode}
+          micOn={micOn}
+          micError={micError}
+          latestEntry={textHistory.length ? textHistory[textHistory.length - 1] : null}
+          onToggleMic={toggleMic}
+          onSpeak={speak}
+        />
       </div>
 
       <TiltedPanel side="right">

@@ -16,11 +16,15 @@ export function OrbScene({ audio }: { audio: OrbAudioRefs }) {
       gl={{ antialias: true, alpha: true }}
       style={{ touchAction: 'none', cursor: 'grab' }}
     >
-      <ambientLight intensity={0.15} />
-      <pointLight position={[3, 3, 4]} intensity={10} color="#f2f2f5" />
-      <pointLight position={[-3, -2, -3]} intensity={5} color="#c9ccd4" />
+      {/* Brighter than a pure studio setup: the orb sits inside a dark well,
+          so it needs enough ambient/fill light to stay visible instead of
+          dissolving into the backdrop. */}
+      <ambientLight intensity={0.55} />
+      <pointLight position={[3, 3, 4]} intensity={12} color="#f5f5f8" />
+      <pointLight position={[-3, -2, -3]} intensity={8} color="#d8dae0" />
+      <pointLight position={[0, -3, 2]} intensity={4} color="#c9ccd4" />
       <Suspense fallback={null}>
-        <Environment preset="night" environmentIntensity={1.1} />
+        <Environment preset="city" environmentIntensity={1.5} />
         <LiquidMetalOrb audio={audio} />
       </Suspense>
     </Canvas>

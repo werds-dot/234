@@ -14,7 +14,7 @@ function formatTime(at: number) {
 
 <template>
   <div class="flex h-full flex-col gap-0">
-    <div class="grid w-full grid-cols-3 border-b border-border/50">
+    <div class="grid w-full grid-cols-3 border-b border-border">
       <button
         type="button"
         class="flex items-center justify-center gap-1.5 border-b-2 py-3 font-mono text-[11px] transition-colors"
@@ -47,11 +47,11 @@ function formatTime(at: number) {
     <div v-if="activeTab === 'workbench'" class="flex-1 overflow-hidden p-4">
       <h2 class="mb-3 font-mono text-[11px] tracking-widest text-muted-foreground uppercase">工作台</h2>
       <div class="flex flex-col gap-3">
-        <div class="rounded-lg border border-border/50 bg-secondary/40 p-3">
+        <div class="rounded-lg border border-border bg-secondary/80 p-3">
           <p class="font-mono text-[11px] text-muted-foreground">当前会话</p>
           <p class="mt-1 font-sans text-sm text-foreground">液态磁体 · 声音交互</p>
         </div>
-        <div class="rounded-lg border border-border/50 bg-secondary/40 p-3">
+        <div class="rounded-lg border border-border bg-secondary/80 p-3">
           <p class="font-mono text-[11px] text-muted-foreground">交互提示</p>
           <p class="mt-1 font-sans text-xs leading-relaxed text-muted-foreground">
             拖动球体可将其拉伸变形，松手后会弹性回弯。开启麦克风或输入文字都会让它随声音起伏。
@@ -68,7 +68,7 @@ function formatTime(at: number) {
           <div
             v-for="entry in history.slice().reverse()"
             :key="entry.id"
-            class="rounded-lg border border-border/40 bg-secondary/30 p-2.5"
+            class="rounded-lg border border-border bg-secondary/70 p-2.5"
           >
             <p class="font-mono text-[10px] text-muted-foreground/70">{{ formatTime(entry.at) }}</p>
             <p class="mt-0.5 line-clamp-2 font-sans text-xs text-foreground/90">{{ entry.text }}</p>
@@ -80,18 +80,18 @@ function formatTime(at: number) {
     <div v-else class="flex-1 overflow-hidden p-4">
       <h2 class="mb-3 font-mono text-[11px] tracking-widest text-muted-foreground uppercase">设置</h2>
       <div class="flex flex-col gap-3">
-        <div class="flex items-center justify-between rounded-lg border border-border/50 bg-secondary/40 p-3">
+        <div class="flex items-center justify-between rounded-lg border border-border bg-secondary/80 p-3">
           <span class="flex items-center gap-2 font-sans text-xs text-foreground/90">
             <Sliders class="size-3.5 text-muted-foreground" />
             形变灵敏度
           </span>
           <span class="font-mono text-[11px] text-muted-foreground">标准</span>
         </div>
-        <div class="flex items-center justify-between rounded-lg border border-border/50 bg-secondary/40 p-3">
+        <div class="flex items-center justify-between rounded-lg border border-border bg-secondary/80 p-3">
           <span class="font-sans text-xs text-foreground/90">语音语言</span>
           <span class="font-mono text-[11px] text-muted-foreground">自动检测</span>
         </div>
-        <div class="flex items-center justify-between rounded-lg border border-border/50 bg-secondary/40 p-3">
+        <div class="flex items-center justify-between rounded-lg border border-border bg-secondary/80 p-3">
           <span class="font-sans text-xs text-foreground/90">深井视觉深度</span>
           <span class="font-mono text-[11px] text-muted-foreground">中</span>
         </div>

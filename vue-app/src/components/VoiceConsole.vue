@@ -42,7 +42,7 @@ function handleKeydown(e: KeyboardEvent) {
 <template>
   <div class="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 px-4 pb-6 sm:pb-10">
     <div
-      class="pointer-events-none flex items-center gap-2 rounded-full border border-border/60 bg-card/40 px-3 py-1 font-mono text-xs tracking-wide text-muted-foreground backdrop-blur-md transition-colors"
+      class="pointer-events-none flex items-center gap-2 rounded-full border border-border bg-card/40 px-3 py-1 font-mono text-xs tracking-wide text-muted-foreground backdrop-blur-md transition-colors"
       :class="{
         'text-accent': props.mode === 'listening',
         'text-primary': props.mode === 'speaking' || props.mode === 'thinking',
@@ -59,7 +59,7 @@ function handleKeydown(e: KeyboardEvent) {
     </div>
 
     <div
-      class="pointer-events-auto flex w-full max-w-xl items-center gap-2 rounded-2xl border border-border/60 bg-card/70 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
+      class="pointer-events-auto flex w-full max-w-xl items-center gap-2 rounded-2xl border border-border bg-card/70 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
     >
       <button
         type="button"
@@ -67,7 +67,7 @@ function handleKeydown(e: KeyboardEvent) {
         :class="
           props.micOn
             ? 'border-primary bg-primary text-primary-foreground'
-            : 'border-border/60 bg-transparent text-foreground hover:bg-secondary/50'
+            : 'border-border bg-transparent text-foreground hover:bg-secondary/50'
         "
         :aria-pressed="props.micOn"
         :aria-label="props.micOn ? '关闭麦克风' : '开启麦克风'"
