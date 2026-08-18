@@ -1,47 +1,32 @@
+'use client'
+
+import dynamic from 'next/dynamic'
+import { useVoiceOrb } from '@/hooks/use-voice-orb'
+import { VoiceConsole } from '@/components/voice-console'
+
+const OrbScene = dynamic(() => import('@/components/orb-scene').then((mod) => mod.OrbScene), {
+  ssr: false,
+})
+
 export default function Page() {
+  const { mode, micOn, micError, toggleMic, speak, refs } = useVoiceOrb()
+
   return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
+    <main className="relative h-screen w-full overflow-hidden bg-background">
+      <header className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center gap-1 px-4 pt-8 text-center">
+        <h1 className="font-sans text-sm font-medium tracking-[0.2em] text-muted-foreground uppercase">
+          液态磁体
+        </h1>
+        <p className="max-w-xs font-mono text-xs text-muted-foreground/60">
+          说话、打字，看它如何回应
+        </p>
+      </header>
+
+      <div className="absolute inset-0">
+        <OrbScene audio={refs} />
+      </div>
+
+      <VoiceConsole mode={mode} micOn={micOn} micError={micError} onToggleMic={toggleMic} onSpeak={speak} />
     </main>
   )
 }
