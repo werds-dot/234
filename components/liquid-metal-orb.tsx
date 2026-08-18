@@ -1,14 +1,10 @@
 'use client'
 
-import { useFrame } from '@react-three/fiber'
+import { useFrame, type ThreeEvent } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { createLiquidMetalMaterial } from '@/lib/liquid-metal-material'
 import type { OrbAudioRefs } from '@/hooks/use-voice-orb'
-
-const AMBER = new THREE.Color('#f5a25a')
-const TEAL = new THREE.Color('#5eead4')
-const DIM = new THREE.Color('#8a8d94')
 
 function average(data: Uint8Array, start: number, end: number) {
   let sum = 0
@@ -18,12 +14,62 @@ function average(data: Uint8Array, start: number, end: number) {
   return to > from ? sum / (to - from) / 255 : 0
 }
 
+const ORB_RADIUS = 0.9
+
 export function LiquidMetalOrb({ audio }: { audio: OrbAudioRefs }) {
   const meshRef = useRef<THREE.Mesh>(null)
-  const geometry = useMemo(() => new THREE.IcosahedronGeometry(1.35, 48), [])
+  const geometry = useMemo(() => new THREE.IcosahedronGeometry(ORB_RADIUS, 48), [])
   const { material, uniforms } = useMemo(() => createLiquidMetalMaterial(), [])
 
   const smoothed = useRef({ bass: 0, mid: 0, treble: 0, level: 0 })
+
+  // Drag-to-stretch state: a spring-damped strength value chases a target
+  // set while the pointer is down, then settles back to 0 with a light
+  // bounce once released, so the blob feels elastic rather than rubbery.
+  const drag = useRef({
+    isDragging: false,
+    pointerId: -1,
+    target: 0,
+    strength: 0,
+    velocity: 0,
+  })
+
+  function handlePointerDown(event: ThreeEvent<PointerEvent>) {
+    event.stopPropagation()
+    const mesh = meshRef.current
+    if (!mesh) return
+    try {
+      ;(event.nativeEvent.target as Element)?.setPointerCapture?.(event.pointerId)
+    } catch {
+      // Pointer capture can fail for synthetic/edge-case events; the drag
+      // still works via the mesh's own pointer handlers.
+    }
+    drag.current.isDragging = true
+    drag.current.pointerId = event.pointerId
+    drag.current.target = 0.9
+    const local = mesh.worldToLocal(event.point.clone())
+    uniforms.uDragDir.value.copy(local.normalize())
+  }
+
+  function handlePointerMove(event: ThreeEvent<PointerEvent>) {
+    if (!drag.current.isDragging) return
+    const mesh = meshRef.current
+    if (!mesh) return
+    const local = mesh.worldToLocal(event.point.clone())
+    if (local.lengthSq() > 0.0001) {
+      uniforms.uDragDir.value.lerp(local.normalize(), 0.5)
+    }
+  }
+
+  function handlePointerUp(event: ThreeEvent<PointerEvent>) {
+    try {
+      ;(event.nativeEvent.target as Element)?.releasePointerCapture?.(event.pointerId)
+    } catch {
+      // No-op: nothing to release if capture was never established.
+    }
+    drag.current.isDragging = false
+    drag.current.target = 0
+  }
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime
@@ -73,18 +119,36 @@ export function LiquidMetalOrb({ audio }: { audio: OrbAudioRefs }) {
     uniforms.uMid.value = s.mid
     uniforms.uTreble.value = s.treble
 
-    const targetColor = mode === 'listening' ? TEAL : mode === 'speaking' || mode === 'thinking' ? AMBER : DIM
-    material.emissive.lerp(targetColor, 0.08)
-    const idleFloor = mode === 'idle' ? 0.03 : 0.08
-    material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, idleFloor + s.level * 1.1, 0.1)
+    // Fixed metallic color for every mode; only brightness breathes with level.
+    material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, 0.03 + s.level * 0.5, 0.1)
+
+    // Spring the drag strength toward its target with a bit of overshoot,
+    // giving the pull/release an elastic, liquid feel.
+    const d = drag.current
+    const stiffness = d.isDragging ? 22 : 9
+    const damping = d.isDragging ? 10 : 4.5
+    d.velocity += (d.target - d.strength) * stiffness * delta
+    d.velocity *= 1 - Math.min(1, damping * delta)
+    d.strength += d.velocity * delta
+    uniforms.uDragStrength.value = Math.max(0, d.strength)
 
     if (meshRef.current) {
       meshRef.current.rotation.y += delta * (0.06 + s.level * 0.15)
       meshRef.current.rotation.x = Math.sin(t * 0.15) * 0.08
-      const scale = 1 + s.bass * 0.08
+      const scale = 1 + s.bass * 0.06
       meshRef.current.scale.setScalar(scale)
     }
   })
 
-  return <mesh ref={meshRef} geometry={geometry} material={material} />
+  return (
+    <mesh
+      ref={meshRef}
+      geometry={geometry}
+      material={material}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    />
+  )
 }

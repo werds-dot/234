@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
+export type TextEntry = { id: number; text: string; at: number }
+export type ProcessLogEntry = { id: number; text: string; at: number }
+
 export type OrbAudioRefs = {
   modeRef: RefObject<OrbMode>
   analyserRef: RefObject<AnalyserNode | null>
@@ -22,14 +25,22 @@ export function useVoiceOrb() {
   const [micOn, setMicOn] = useState(false)
   const [micError, setMicError] = useState<string | null>(null)
   const [lastText, setLastText] = useState<string | null>(null)
+  const [textHistory, setTextHistory] = useState<TextEntry[]>([])
+  const [processLog, setProcessLog] = useState<ProcessLogEntry[]>([])
 
   const modeRef = useRef<OrbMode>('idle')
   const analyserRef = useRef<AnalyserNode | null>(null)
   const freqDataRef = useRef<Uint8Array | null>(null)
   const spikesRef = useRef<number[]>([])
+  const logIdRef = useRef(0)
 
   const audioCtxRef = useRef<AudioContext | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
+
+  const pushLog = useCallback((text: string) => {
+    logIdRef.current += 1
+    setProcessLog((prev) => [...prev.slice(-19), { id: logIdRef.current, text, at: Date.now() }])
+  }, [])
 
   useEffect(() => {
     modeRef.current = mode
@@ -44,7 +55,8 @@ export function useVoiceOrb() {
     audioCtxRef.current = null
     setMicOn(false)
     setMode((current) => (current === 'listening' ? 'idle' : current))
-  }, [])
+    pushLog('麦克风已关闭，停止音频采样')
+  }, [pushLog])
 
   const startMic = useCallback(async () => {
     setMicError(null)
@@ -64,10 +76,12 @@ export function useVoiceOrb() {
 
       setMicOn(true)
       setMode('listening')
+      pushLog('麦克风已开启，开始采集频谱数据')
     } catch (err) {
       setMicError('麦克风访问被拒绝，请检查浏览器权限设置。')
+      pushLog('麦克风请求被拒绝')
     }
-  }, [])
+  }, [pushLog])
 
   const toggleMic = useCallback(() => {
     if (micOn) {
@@ -85,7 +99,9 @@ export function useVoiceOrb() {
       // Pause mic listening while speaking to avoid the orb reacting to its own voice.
       const wasListening = modeRef.current === 'listening'
       setLastText(trimmed)
+      setTextHistory((prev) => [...prev, { id: Date.now(), text: trimmed, at: Date.now() }])
       setMode('thinking')
+      pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 
       window.setTimeout(() => {
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -102,12 +118,14 @@ export function useVoiceOrb() {
         utterance.onstart = () => {
           spikesRef.current = []
           setMode('speaking')
+          pushLog('开始语音合成输出')
         }
         utterance.onboundary = () => {
           spikesRef.current = [...spikesRef.current, performance.now()]
         }
         const finish = () => {
           setMode(wasListening ? 'listening' : 'idle')
+          pushLog('输出结束，恢复待机')
         }
         utterance.onend = finish
         utterance.onerror = finish
@@ -115,7 +133,7 @@ export function useVoiceOrb() {
         window.speechSynthesis.speak(utterance)
       }, 500)
     },
-    [],
+    [pushLog],
   )
 
   useEffect(() => {
@@ -129,5 +147,5 @@ export function useVoiceOrb() {
 
   const refs: OrbAudioRefs = { modeRef, analyserRef, freqDataRef, spikesRef }
 
-  return { mode, micOn, micError, lastText, toggleMic, speak, refs }
+  return { mode, micOn, micError, lastText, textHistory, processLog, toggleMic, speak, refs }
 }

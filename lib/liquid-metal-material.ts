@@ -11,6 +11,8 @@ export type LiquidMetalUniforms = {
   uNoiseStrength: { value: number }
   uSpikeStrength: { value: number }
   uPulseStrength: { value: number }
+  uDragDir: { value: THREE.Vector3 }
+  uDragStrength: { value: number }
 }
 
 /**
@@ -30,18 +32,20 @@ export function createLiquidMetalMaterial() {
     uNoiseStrength: { value: 0.045 },
     uSpikeStrength: { value: 0.55 },
     uPulseStrength: { value: 0.22 },
+    uDragDir: { value: new THREE.Vector3(0, 1, 0) },
+    uDragStrength: { value: 0 },
   }
 
   const material = new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color('#050506'),
-    emissive: new THREE.Color('#f5a25a'),
-    emissiveIntensity: 0.05,
+    color: new THREE.Color('#0a0a0c'),
+    emissive: new THREE.Color('#c9ccd4'),
+    emissiveIntensity: 0.04,
     metalness: 1,
-    roughness: 0.16,
+    roughness: 0.18,
     clearcoat: 1,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 2.2,
-    iridescence: 0.25,
+    clearcoatRoughness: 0.12,
+    envMapIntensity: 2.4,
+    iridescence: 0.18,
     iridescenceIOR: 1.3,
     iridescenceThicknessRange: [100, 400],
   })
@@ -64,12 +68,16 @@ export function createLiquidMetalMaterial() {
         uniform float uNoiseStrength;
         uniform float uSpikeStrength;
         uniform float uPulseStrength;
+        uniform vec3 uDragDir;
+        uniform float uDragStrength;
         ${simplexNoiseGLSL}
 
         float lmDisplace(vec3 p) {
           float base = snoise(p * uNoiseScale + uTime * 0.15);
           float spike = max(snoise(p * uSpikeScale + uTime * 0.35), 0.0);
-          return base * uNoiseStrength + spike * uTreble * uSpikeStrength + uBass * uPulseStrength;
+          float pull = pow(max(dot(normalize(p), uDragDir), 0.0), 3.0) * uDragStrength;
+          float pinch = pow(max(dot(normalize(p), -uDragDir), 0.0), 5.0) * uDragStrength * -0.35;
+          return base * uNoiseStrength + spike * uTreble * uSpikeStrength + uBass * uPulseStrength + pull + pinch;
         }`,
       )
       .replace(
