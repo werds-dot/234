@@ -35,6 +35,7 @@ const BackgroundContext = createContext<BackgroundContextValue | null>(null)
  */
 export function BackgroundProvider({ children }: { children: ReactNode }) {
   const [pref, setPref] = useState<BackgroundPref>(DEFAULT_PREF)
+  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
     try {
@@ -43,15 +44,21 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
     } catch {
       // Ignore malformed/unavailable storage; fall back to defaults.
     }
+    setHydrated(true)
   }, [])
 
   useEffect(() => {
+    // Skip the very first commit: pref is still DEFAULT_PREF until the
+    // hydration effect above has had a chance to read localStorage, so
+    // persisting unconditionally here would clobber a saved preference
+    // with the default on every fresh page load.
+    if (!hydrated) return
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(pref))
     } catch {
       // Storage may be unavailable (e.g. private mode); safe to ignore.
     }
-  }, [pref])
+  }, [pref, hydrated])
 
   const setMode = useCallback((mode: BackgroundMode) => setPref((p) => ({ ...p, mode })), [])
   const setColor = useCallback((color: string) => setPref((p) => ({ ...p, color, mode: 'solid' })), [])
