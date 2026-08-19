@@ -1,8 +1,16 @@
 import { reactive, ref } from 'vue'
+import { composeOrbReply } from './orbReply'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
-export type TextEntry = { id: number; text: string; at: number; attachments?: string[] }
+export type TextEntry = {
+  id: number
+  text: string
+  at: number
+  attachments?: string[]
+  // 'user' is the person's input, 'orb' is the magnet's spoken reply.
+  role?: 'user' | 'orb'
+}
 export type ProcessLogEntry = { id: number; text: string; at: number }
 
 // Plain (non-reactive-by-Vue) audio buffers, read directly inside the
@@ -82,22 +90,39 @@ export function useVoiceOrb() {
     // Pause mic listening while speaking to avoid the orb reacting to its own voice.
     const wasListening = mode.value === 'listening'
     lastText.value = trimmed
+    // 1) Record the user's message.
     textHistory.value = [
       ...textHistory.value,
-      { id: Date.now(), text: trimmed, at: Date.now(), attachments: attachments?.length ? attachments : undefined },
+      {
+        id: Date.now(),
+        text: trimmed,
+        at: Date.now(),
+        attachments: attachments?.length ? attachments : undefined,
+        role: 'user',
+      },
     ]
     mode.value = 'thinking'
     pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 
+    // 2) Compose the orb's reply, record it, then speak the reply (not the
+    //    user's own words) once synthesis begins.
+    const reply = composeOrbReply(trimmed)
+
     window.setTimeout(() => {
+      pushLog(`已生成回复："${reply.slice(0, 24)}${reply.length > 24 ? '…' : ''}"`)
+      textHistory.value = [
+        ...textHistory.value,
+        { id: Date.now() + 1, text: reply, at: Date.now(), role: 'orb' },
+      ]
+
       if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
         mode.value = wasListening ? 'listening' : 'idle'
         return
       }
 
       window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(trimmed)
-      utterance.lang = /[\u4e00-\u9fa5]/.test(trimmed) ? 'zh-CN' : 'en-US'
+      const utterance = new SpeechSynthesisUtterance(reply)
+      utterance.lang = /[\u4e00-\u9fa5]/.test(reply) ? 'zh-CN' : 'en-US'
       utterance.rate = 1
       utterance.pitch = 1
 

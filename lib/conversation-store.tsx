@@ -2,7 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-export type TextEntry = { id: number; text: string; at: number; attachments?: string[] }
+export type TextEntry = {
+  id: number
+  text: string
+  at: number
+  attachments?: string[]
+  // 'user' is the person's input, 'orb' is the magnet's spoken reply. Optional
+  // so entries persisted before replies existed still read as user messages.
+  role?: 'user' | 'orb'
+}
 
 const STORAGE_KEY = 'liquid-orb.conversation-history'
 const MAX_ENTRIES = 100

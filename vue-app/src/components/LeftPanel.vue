@@ -1,22 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  Settings2,
-  History,
-  LayoutGrid,
-  Sliders,
-  Paperclip,
-  Sparkles,
-  Palette,
-  Upload,
-  Wand2,
-  Languages,
-  Code2,
-  PenLine,
-  X,
-} from 'lucide-vue-next'
+import { Settings2, History, LayoutGrid, Sliders, Paperclip, Sparkles, Palette, Upload } from 'lucide-vue-next'
 import type { TextEntry } from '../composables/useVoiceOrb'
 import { useBackgroundStore, PRESET_COLORS, type BackgroundMode } from '../composables/useBackgroundStore'
+import { SKILLS } from '../composables/skills'
+import { useAppView } from '../composables/useAppView'
 
 defineProps<{ history: TextEntry[] }>()
 
@@ -58,25 +46,9 @@ function handleFileSelected(e: Event) {
 }
 
 // --- Skill plaza (workbench tab) -------------------------------------------
-
-const SKILLS = [
-  { icon: Wand2, name: '智能改写', desc: '一键优化语言表达与语气' },
-  { icon: Languages, name: '实时翻译', desc: '多语言语音互译，即说即译' },
-  { icon: Code2, name: '代码讲解', desc: '朗读并逐段解释代码片段' },
-  { icon: PenLine, name: '写作教练', desc: '结构化长文写作与润色建议' },
-]
-
-const skillPlazaOpen = ref(false)
-
-function openSkillPlaza() {
-  skillPlazaOpen.value = true
-}
-function closeSkillPlaza() {
-  skillPlazaOpen.value = false
-}
-function onDialogKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') closeSkillPlaza()
-}
+// The plaza is its own page; the entry navigates there via the shared view
+// state rather than opening a dialog.
+const { goToSkills } = useAppView()
 </script>
 
 <template>
@@ -128,7 +100,7 @@ function onDialogKeydown(e: KeyboardEvent) {
         <button
           type="button"
           class="group flex w-full items-center justify-between rounded-lg border border-border bg-secondary/80 p-3 text-left transition-colors hover:bg-secondary"
-          @click="openSkillPlaza"
+          @click="goToSkills"
         >
           <span class="flex items-center gap-2">
             <Sparkles class="size-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
@@ -253,56 +225,4 @@ function onDialogKeydown(e: KeyboardEvent) {
       </div>
     </div>
   </div>
-
-  <Teleport to="body">
-    <div
-      v-if="skillPlazaOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-label="技能广场"
-      tabindex="-1"
-      @click.self="closeSkillPlaza"
-      @keydown="onDialogKeydown"
-    >
-      <div class="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl">
-        <div class="mb-4 flex items-start justify-between gap-2">
-          <div>
-            <h3 class="flex items-center gap-2 font-sans text-sm font-medium text-foreground">
-              <Sparkles class="size-4 text-primary" />
-              技能广场
-            </h3>
-            <p class="mt-1 font-mono text-[11px] text-muted-foreground">为磁体球扩展专项能力，即将开放接入</p>
-          </div>
-          <button
-            type="button"
-            aria-label="关闭"
-            class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            @click="closeSkillPlaza"
-          >
-            <X class="size-4" />
-          </button>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div
-            v-for="skill in SKILLS"
-            :key="skill.name"
-            class="flex flex-col gap-1.5 rounded-lg border border-border bg-secondary/70 p-3"
-          >
-            <div class="flex items-center justify-between">
-              <component :is="skill.icon" class="size-4 text-muted-foreground" />
-              <span
-                class="rounded-full border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground"
-              >
-                即将上线
-              </span>
-            </div>
-            <p class="font-sans text-xs font-medium text-foreground/90">{{ skill.name }}</p>
-            <p class="font-mono text-[10px] leading-relaxed text-muted-foreground">{{ skill.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 </template>

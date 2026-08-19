@@ -19,12 +19,17 @@ export function TiltedPanel({
 }) {
   return (
     <div
-      className="hidden shrink-0 md:flex md:items-center md:justify-center"
-      style={{ perspective: '1600px', width: 'clamp(200px, 17vw, 260px)' }}
+      className={cn(
+        'hidden shrink-0 md:flex md:items-center',
+        // Anchor each panel to its own outer screen edge so no gap opens up
+        // between the panel and the viewport edge.
+        side === 'left' ? 'md:justify-start' : 'md:justify-end',
+      )}
+      style={{ perspective: '1600px', width: 'clamp(248px, 21vw, 372px)' }}
     >
       <div
         className={cn(
-          'h-[88%] border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl',
+          'h-[88%] w-full border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl',
           side === 'left' ? 'rounded-r-2xl border-l-0' : 'rounded-l-2xl border-r-0',
           className,
         )}

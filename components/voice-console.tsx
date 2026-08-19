@@ -1,9 +1,7 @@
 'use client'
 
-import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
-import { Mic, MicOff, Paperclip, Send, X, MessageSquareText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Paperclip, MessageSquareText } from 'lucide-react'
+import { PromptInput } from '@/components/ui/ai-chat-input'
 import { cn } from '@/lib/utils'
 import type { OrbMode, TextEntry } from '@/hooks/use-voice-orb'
 
@@ -16,47 +14,16 @@ const STATUS_LABEL: Record<OrbMode, string> = {
 
 export function VoiceConsole({
   mode,
-  micOn,
-  micError,
   latestEntry,
-  onToggleMic,
   onSpeak,
 }: {
   mode: OrbMode
-  micOn: boolean
-  micError: string | null
   latestEntry: TextEntry | null
-  onToggleMic: () => void
   onSpeak: (text: string, attachments?: string[]) => void
 }) {
-  const [value, setValue] = useState('')
-  const [files, setFiles] = useState<File[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  function submit() {
-    if (!value.trim()) return
-    onSpeak(value, files.map((f) => f.name))
-    setValue('')
-    setFiles([])
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
-  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key !== 'Enter') return
-    // Guard against IME composition (Chinese/Japanese/Korean) confirming on Enter,
-    // and Safari's unreliable final composition event (keyCode 229).
-    if (e.nativeEvent.isComposing || (e as unknown as { keyCode?: number }).keyCode === 229) return
-    e.preventDefault()
-    submit()
-  }
-
-  function handleFilesSelected(e: ChangeEvent<HTMLInputElement>) {
-    const selected = Array.from(e.target.files ?? [])
-    if (selected.length) setFiles((prev) => [...prev, ...selected])
-  }
-
-  function removeFile(index: number) {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
+  function handleSubmit(value: string, meta: { attachments: File[] }) {
+    if (!value.trim() && meta.attachments.length === 0) return
+    onSpeak(value, meta.attachments.map((f) => f.name))
   }
 
   return (
@@ -65,9 +32,14 @@ export function VoiceConsole({
           swaps to the newest entry — it never auto-dismisses on a timer. */}
       {latestEntry && (
         <div className="pointer-events-auto flex w-full max-w-xl flex-col gap-1.5 rounded-2xl border border-border bg-card/95 px-4 py-3 text-left shadow-xl shadow-black/10 backdrop-blur-xl">
-          <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+          <div
+            className={cn(
+              'flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase',
+              latestEntry.role === 'orb' ? 'text-primary' : 'text-muted-foreground',
+            )}
+          >
             <MessageSquareText className="size-3" />
-            最新内容
+            {latestEntry.role === 'orb' ? '磁体回复' : '你的输入'}
           </div>
           <p className="font-sans text-sm leading-relaxed text-foreground">{latestEntry.text}</p>
           {latestEntry.attachments && latestEntry.attachments.length > 0 && (
@@ -103,87 +75,17 @@ export function VoiceConsole({
         {STATUS_LABEL[mode]}
       </div>
 
-      <div className="pointer-events-auto flex w-full max-w-xl flex-col gap-2 rounded-2xl border border-border bg-card/95 p-2 shadow-2xl shadow-black/10 backdrop-blur-xl">
-        {files.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 px-1.5 pt-1">
-            {files.map((file, index) => (
-              <span
-                key={`${file.name}-${index}`}
-                className="inline-flex items-center gap-1 rounded-md bg-secondary px-2 py-1 font-mono text-[11px] text-secondary-foreground"
-              >
-                <Paperclip className="size-3" />
-                {file.name}
-                <button
-                  type="button"
-                  onClick={() => removeFile(index)}
-                  className="ml-0.5 rounded-full text-muted-foreground hover:text-foreground"
-                  aria-label={`移除附件 ${file.name}`}
-                >
-                  <X className="size-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant={micOn ? 'default' : 'outline'}
-            size="icon-lg"
-            className="shrink-0 rounded-xl"
-            onClick={onToggleMic}
-            aria-pressed={micOn}
-            aria-label={micOn ? '关闭麦克风' : '开启麦克风'}
-          >
-            {micOn ? <Mic className="size-4" /> : <MicOff className="size-4" />}
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            className="shrink-0 rounded-xl"
-            onClick={() => fileInputRef.current?.click()}
-            aria-label="上传文件"
-          >
-            <Paperclip className="size-4" />
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            className="hidden"
-            onChange={handleFilesSelected}
-            aria-hidden="true"
-            tabIndex={-1}
-          />
-
-          <Input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="输入文字，让磁体球开口说话…"
-            className="h-9 flex-1 border-none bg-transparent font-mono text-sm shadow-none placeholder:text-muted-foreground/70 focus-visible:ring-0"
-            aria-label="文字输入"
-          />
-
-          <Button
-            type="button"
-            size="icon-lg"
-            className="shrink-0 rounded-xl"
-            onClick={submit}
-            disabled={!value.trim()}
-            aria-label="发送"
-          >
-            <Send className="size-4" />
-          </Button>
-        </div>
+      {/* New prompt input (replaces the old mic/attach/input console). Its
+          built-in mic does speech-to-text and the Folder button uploads image
+          attachments; on submit we hand the text + file names to the orb. */}
+      <div className="pointer-events-auto flex w-full justify-center">
+        <PromptInput
+          onSubmit={handleSubmit}
+          placeholder="输入文字，让磁体球开口说话…"
+          efforts={['低', '均衡', '全力']}
+          folderColor="#C2703A"
+        />
       </div>
-
-      <p className="pointer-events-none h-4 text-center font-mono text-[11px] text-destructive" role="status">
-        {micError ?? ''}
-      </p>
     </div>
   )
 }
