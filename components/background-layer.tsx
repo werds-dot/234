@@ -14,15 +14,17 @@ export function BackgroundLayer() {
   const { pref } = useBackground()
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden bg-background" aria-hidden="true">
+    <div className="fixed inset-0 z-0 overflow-hidden bg-background" aria-hidden="true">
       {pref.mode === 'fluid' && (
         <>
-          {/* WebGL liquid-chrome field. A soft radial white wash keeps the
-              center (orb + header text) legible while the metallic marbling
-              stays visible toward the edges behind the frosted panels. */}
-          <div className="absolute inset-0">
+          {/* WebGL liquid-chrome field. The shader divides baseColor by
+              abs(sin(...)), so it blows out to white along the zero-crossing
+              bands (the chrome highlights). A CSS contrast+brightness filter
+              tames that glare into a moody metallic backdrop while the frosted
+              panels/orb read clearly on top. */}
+          <div className="absolute inset-0" style={{ filter: 'contrast(1.3) brightness(0.55)' }}>
             <LiquidChrome
-              baseColor={[0.16, 0.15, 0.21]}
+              baseColor={[0.28, 0.27, 0.36]}
               speed={0.4}
               amplitude={0.4}
               frequencyX={2.5}
@@ -30,11 +32,12 @@ export function BackgroundLayer() {
               interactive
             />
           </div>
+          {/* Center glow keeps the orb + header text legible. */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(circle at 50% 42%, oklch(1 0 0 / 0.55) 0%, oklch(1 0 0 / 0.34) 40%, oklch(1 0 0 / 0.24) 100%)',
+                'radial-gradient(circle at 50% 42%, oklch(0.98 0.005 264 / 0.35) 0%, transparent 46%)',
             }}
           />
         </>

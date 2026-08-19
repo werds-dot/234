@@ -44,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="zh" className={`bg-background ${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="zh" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
         <BackgroundProvider>
           <BackgroundLayer />
