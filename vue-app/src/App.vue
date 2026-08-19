@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useVoiceOrb } from './composables/useVoiceOrb'
+import { useAppView } from './composables/useAppView'
 import OrbScene from './components/OrbScene.vue'
 import DeepWell from './components/DeepWell.vue'
 import TiltedPanel from './components/TiltedPanel.vue'
@@ -8,8 +9,10 @@ import LeftPanel from './components/LeftPanel.vue'
 import RightPanel from './components/RightPanel.vue'
 import VoiceConsole from './components/VoiceConsole.vue'
 import BackgroundLayer from './components/BackgroundLayer.vue'
+import SkillsPage from './components/SkillsPage.vue'
 
 const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, audio } = useVoiceOrb()
+const { view } = useAppView()
 
 const latestEntry = computed(() =>
   textHistory.value.length ? textHistory.value[textHistory.value.length - 1] : null,
@@ -17,9 +20,11 @@ const latestEntry = computed(() =>
 </script>
 
 <template>
-  <main class="relative flex h-screen w-full items-stretch overflow-hidden">
-    <BackgroundLayer />
+  <BackgroundLayer />
 
+  <SkillsPage v-if="view === 'skills'" />
+
+  <main v-else class="relative flex h-screen w-full items-stretch overflow-hidden">
     <TiltedPanel side="left">
       <LeftPanel :history="textHistory" />
     </TiltedPanel>

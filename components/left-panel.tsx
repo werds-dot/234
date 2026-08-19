@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, type ChangeEvent } from 'react'
+import Link from 'next/link'
 import {
   Settings2,
   History,
@@ -10,26 +11,15 @@ import {
   Sparkles,
   Palette,
   Upload,
-  Wand2,
-  Languages,
-  Code2,
-  PenLine,
 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { useBackground, type BackgroundMode } from '@/lib/background-store'
+import { SKILLS } from '@/lib/skills'
 import type { TextEntry } from '@/hooks/use-voice-orb'
 
 function formatTime(at: number) {
@@ -42,13 +32,6 @@ const PRESET_COLORS = [
   'oklch(0.95 0.01 264)',
   'oklch(0.82 0.03 300)',
   'oklch(0.22 0.01 264)',
-]
-
-const SKILLS = [
-  { icon: Wand2, name: '智能改写', desc: '一键优化语言表达与语气' },
-  { icon: Languages, name: '实时翻译', desc: '多语言语音互译，即说即译' },
-  { icon: Code2, name: '代码讲解', desc: '朗读并逐段解释代码片段' },
-  { icon: PenLine, name: '写作教练', desc: '结构化长文写作与润色建议' },
 ]
 
 export function LeftPanel({ history }: { history: TextEntry[] }) {
@@ -265,47 +248,22 @@ function BackgroundSettings() {
 }
 
 /**
- * Workbench entry point into the skill plaza. The app is a single-page
- * shell with no router, so this opens as a dialog rather than navigating
- * to a separate route.
+ * Workbench entry point into the skill plaza. Navigates to the dedicated
+ * /skills route rather than opening a dialog, so the plaza is its own page.
  */
 function SkillPlazaEntry() {
   return (
-    <Dialog>
-      <DialogTrigger className="group flex w-full items-center justify-between rounded-lg border border-border bg-secondary/80 p-3 text-left transition-colors hover:bg-secondary">
-        <span className="flex items-center gap-2">
-          <Sparkles className="size-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
-          <span className="font-sans text-xs text-foreground/90">技能广场</span>
-        </span>
-        <Badge variant="secondary" className="font-mono text-[9px]">
-          {SKILLS.length}
-        </Badge>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-sans text-sm">
-            <Sparkles className="size-4 text-primary" />
-            技能广场
-          </DialogTitle>
-          <DialogDescription className="font-mono text-[11px]">
-            为磁体球扩展专项能力，即将开放接入
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid grid-cols-2 gap-2">
-          {SKILLS.map(({ icon: Icon, name, desc }) => (
-            <div key={name} className="flex flex-col gap-1.5 rounded-lg border border-border bg-secondary/70 p-3">
-              <div className="flex items-center justify-between">
-                <Icon className="size-4 text-muted-foreground" />
-                <Badge variant="outline" className="font-mono text-[9px] text-muted-foreground">
-                  即将上线
-                </Badge>
-              </div>
-              <p className="font-sans text-xs font-medium text-foreground/90">{name}</p>
-              <p className="font-mono text-[10px] leading-relaxed text-muted-foreground">{desc}</p>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+    <Link
+      href="/skills"
+      className="group flex w-full items-center justify-between rounded-lg border border-border bg-secondary/80 p-3 text-left transition-colors hover:bg-secondary"
+    >
+      <span className="flex items-center gap-2">
+        <Sparkles className="size-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
+        <span className="font-sans text-xs text-foreground/90">技能广场</span>
+      </span>
+      <Badge variant="secondary" className="font-mono text-[9px]">
+        {SKILLS.length}
+      </Badge>
+    </Link>
   )
 }

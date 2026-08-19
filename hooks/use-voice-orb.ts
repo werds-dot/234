@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { useConversationHistory, type TextEntry } from '@/lib/conversation-store'
+import { composeOrbReply } from '@/lib/orb-reply'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
@@ -103,24 +104,33 @@ export function useVoiceOrb() {
       // Pause mic listening while speaking to avoid the orb reacting to its own voice.
       const wasListening = modeRef.current === 'listening'
       setLastText(trimmed)
+      // 1) Record the user's message.
       addEntry({
         id: Date.now(),
         text: trimmed,
         at: Date.now(),
         attachments: attachments?.length ? attachments : undefined,
+        role: 'user',
       })
       setMode('thinking')
       pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 
+      // 2) Compose the orb's reply, record it, then speak the reply (not the
+      //    user's own words) once synthesis begins.
+      const reply = composeOrbReply(trimmed)
+
       window.setTimeout(() => {
+        pushLog(`已生成回复："${reply.slice(0, 24)}${reply.length > 24 ? '…' : ''}"`)
+        addEntry({ id: Date.now() + 1, text: reply, at: Date.now(), role: 'orb' })
+
         if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
           setMode(wasListening ? 'listening' : 'idle')
           return
         }
 
         window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(trimmed)
-        utterance.lang = /[\u4e00-\u9fa5]/.test(trimmed) ? 'zh-CN' : 'en-US'
+        const utterance = new SpeechSynthesisUtterance(reply)
+        utterance.lang = /[\u4e00-\u9fa5]/.test(reply) ? 'zh-CN' : 'en-US'
         utterance.rate = 1
         utterance.pitch = 1
 
@@ -142,7 +152,7 @@ export function useVoiceOrb() {
         window.speechSynthesis.speak(utterance)
       }, 500)
     },
-    [pushLog],
+    [addEntry, pushLog],
   )
 
   useEffect(() => {

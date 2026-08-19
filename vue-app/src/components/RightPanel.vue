@@ -48,9 +48,13 @@ function formatTime(at: number) {
         <div
           v-for="entry in textHistory.slice().reverse()"
           :key="entry.id"
-          class="rounded-lg border border-border bg-secondary/70 p-2.5"
+          class="rounded-lg border p-2.5"
+          :class="entry.role === 'orb' ? 'border-primary/30 bg-primary/5' : 'border-border bg-secondary/70'"
         >
-          <p class="font-mono text-[10px] text-muted-foreground/70">{{ formatTime(entry.at) }}</p>
+          <p class="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground/70">
+            <span :class="entry.role === 'orb' ? 'text-primary' : ''">{{ entry.role === 'orb' ? '磁体' : '你' }}</span>
+            {{ formatTime(entry.at) }}
+          </p>
           <p class="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{{ entry.text }}</p>
           <div v-if="entry.attachments?.length" class="mt-1.5 flex flex-wrap gap-1">
             <span

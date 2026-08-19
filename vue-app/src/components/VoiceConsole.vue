@@ -62,9 +62,12 @@ function removeFile(index: number) {
       v-if="props.latestEntry"
       class="pointer-events-auto flex w-full max-w-xl flex-col gap-1.5 rounded-2xl border border-border bg-card/95 px-4 py-3 text-left shadow-xl shadow-black/10 backdrop-blur-xl"
     >
-      <div class="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+      <div
+        class="flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase"
+        :class="props.latestEntry.role === 'orb' ? 'text-primary' : 'text-muted-foreground'"
+      >
         <MessageSquareText class="size-3" />
-        最新内容
+        {{ props.latestEntry.role === 'orb' ? '磁体回复' : '你的输入' }}
       </div>
       <p class="font-sans text-sm leading-relaxed text-foreground">{{ props.latestEntry.text }}</p>
       <div v-if="props.latestEntry.attachments?.length" class="flex flex-wrap gap-1.5 pt-0.5">

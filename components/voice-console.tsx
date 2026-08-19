@@ -65,9 +65,14 @@ export function VoiceConsole({
           swaps to the newest entry — it never auto-dismisses on a timer. */}
       {latestEntry && (
         <div className="pointer-events-auto flex w-full max-w-xl flex-col gap-1.5 rounded-2xl border border-border bg-card/95 px-4 py-3 text-left shadow-xl shadow-black/10 backdrop-blur-xl">
-          <div className="flex items-center gap-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+          <div
+            className={cn(
+              'flex items-center gap-1.5 font-mono text-[10px] tracking-widest uppercase',
+              latestEntry.role === 'orb' ? 'text-primary' : 'text-muted-foreground',
+            )}
+          >
             <MessageSquareText className="size-3" />
-            最新内容
+            {latestEntry.role === 'orb' ? '磁体回复' : '你的输入'}
           </div>
           <p className="font-sans text-sm leading-relaxed text-foreground">{latestEntry.text}</p>
           {latestEntry.attachments && latestEntry.attachments.length > 0 && (

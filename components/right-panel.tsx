@@ -59,8 +59,21 @@ export function RightPanel({
             .slice()
             .reverse()
             .map((entry) => (
-              <div key={entry.id} className="rounded-lg border border-border bg-secondary/70 p-2.5">
-                <p className="font-mono text-[10px] text-muted-foreground/70">{formatTime(entry.at)}</p>
+              <div
+                key={entry.id}
+                className={cn(
+                  'rounded-lg border p-2.5',
+                  entry.role === 'orb'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-secondary/70',
+                )}
+              >
+                <p className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground/70">
+                  <span className={cn(entry.role === 'orb' && 'text-primary')}>
+                    {entry.role === 'orb' ? '磁体' : '你'}
+                  </span>
+                  {formatTime(entry.at)}
+                </p>
                 <p className="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{entry.text}</p>
                 {entry.attachments && entry.attachments.length > 0 && (
                   <div className="mt-1.5 flex flex-wrap gap-1">
