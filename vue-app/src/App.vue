@@ -7,6 +7,7 @@ import TiltedPanel from './components/TiltedPanel.vue'
 import LeftPanel from './components/LeftPanel.vue'
 import RightPanel from './components/RightPanel.vue'
 import VoiceConsole from './components/VoiceConsole.vue'
+import BackgroundLayer from './components/BackgroundLayer.vue'
 
 const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, audio } = useVoiceOrb()
 
@@ -16,7 +17,9 @@ const latestEntry = computed(() =>
 </script>
 
 <template>
-  <main class="relative flex h-screen w-full items-stretch overflow-hidden bg-background">
+  <main class="relative flex h-screen w-full items-stretch overflow-hidden">
+    <BackgroundLayer />
+
     <TiltedPanel side="left">
       <LeftPanel :history="textHistory" />
     </TiltedPanel>
