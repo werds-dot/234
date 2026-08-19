@@ -11,7 +11,7 @@ import VoiceConsole from './components/VoiceConsole.vue'
 import BackgroundLayer from './components/BackgroundLayer.vue'
 import SkillsPage from './components/SkillsPage.vue'
 
-const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, audio } = useVoiceOrb()
+const { mode, textHistory, processLog, speak, audio } = useVoiceOrb()
 const { view } = useAppView()
 
 const latestEntry = computed(() =>
@@ -39,14 +39,7 @@ const latestEntry = computed(() =>
         <OrbScene :audio="audio" />
       </DeepWell>
 
-      <VoiceConsole
-        :mode="mode"
-        :mic-on="micOn"
-        :mic-error="micError"
-        :latest-entry="latestEntry"
-        @toggle-mic="toggleMic"
-        @speak="speak"
-      />
+      <VoiceConsole :mode="mode" :latest-entry="latestEntry" @speak="speak" />
     </div>
 
     <TiltedPanel side="right">
