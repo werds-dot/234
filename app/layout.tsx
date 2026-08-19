@@ -1,11 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { BackgroundProvider } from '@/lib/background-store'
-import { ConversationProvider } from '@/lib/conversation-store'
-import { BackgroundLayer } from '@/components/background-layer'
-import { NavRail } from '@/components/nav-rail'
 import './globals.css'
 
 const geistSans = Geist({ subsets: ['latin'], variable: '--font-geist-sans' })
@@ -48,17 +43,7 @@ export default function RootLayout({
   return (
     <html lang="zh" className={`bg-background ${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
-        <BackgroundProvider>
-          <ConversationProvider>
-            <TooltipProvider>
-              <BackgroundLayer />
-              <div className="relative flex h-screen w-full overflow-hidden">
-                <NavRail />
-                <div className="relative min-w-0 flex-1 overflow-hidden">{children}</div>
-              </div>
-            </TooltipProvider>
-          </ConversationProvider>
-        </BackgroundProvider>
+        {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
