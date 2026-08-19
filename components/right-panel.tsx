@@ -1,6 +1,6 @@
 'use client'
 
-import { Brain, MessageSquareText } from 'lucide-react'
+import { Brain, MessageSquareText, Paperclip } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import type { OrbMode, ProcessLogEntry, TextEntry } from '@/hooks/use-voice-orb'
@@ -20,7 +20,7 @@ export function RightPanel({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-border/50 px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
         <Brain className="size-3.5 text-muted-foreground" />
         <h2 className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">思考过程</h2>
         <span
@@ -45,7 +45,7 @@ export function RightPanel({
         </div>
       </ScrollArea>
 
-      <div className="flex items-center gap-2 border-t border-b border-border/50 px-4 py-3">
+      <div className="flex items-center gap-2 border-t border-b border-border px-4 py-3">
         <MessageSquareText className="size-3.5 text-muted-foreground" />
         <h2 className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">文字输出</h2>
       </div>
@@ -59,9 +59,22 @@ export function RightPanel({
             .slice()
             .reverse()
             .map((entry) => (
-              <div key={entry.id} className="rounded-lg border border-border/40 bg-secondary/30 p-2.5">
+              <div key={entry.id} className="rounded-lg border border-border bg-secondary/70 p-2.5">
                 <p className="font-mono text-[10px] text-muted-foreground/70">{formatTime(entry.at)}</p>
                 <p className="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{entry.text}</p>
+                {entry.attachments && entry.attachments.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {entry.attachments.map((name) => (
+                      <span
+                        key={name}
+                        className="inline-flex items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 font-mono text-[9px] text-secondary-foreground"
+                      >
+                        <Paperclip className="size-2.5" />
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
         </div>

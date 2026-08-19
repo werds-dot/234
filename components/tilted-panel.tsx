@@ -19,12 +19,12 @@ export function TiltedPanel({
 }) {
   return (
     <div
-      className="hidden shrink-0 md:block"
+      className="hidden shrink-0 md:flex md:items-center md:justify-center"
       style={{ perspective: '1600px', width: 'clamp(200px, 17vw, 260px)' }}
     >
       <div
         className={cn(
-          'h-full border border-border/50 bg-card/60 shadow-2xl shadow-black/50 backdrop-blur-xl',
+          'h-[88%] border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl',
           side === 'left' ? 'rounded-r-2xl border-l-0' : 'rounded-l-2xl border-r-0',
           className,
         )}

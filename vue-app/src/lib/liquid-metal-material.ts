@@ -37,14 +37,16 @@ export function createLiquidMetalMaterial() {
   }
 
   const material = new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color('#0a0a0c'),
+    // Lifted from near-black so mid-tones stay readable instead of
+    // dissolving into the dark well backdrop; still reads as dark metal.
+    color: new THREE.Color('#1c1c20'),
     emissive: new THREE.Color('#c9ccd4'),
-    emissiveIntensity: 0.04,
-    metalness: 1,
-    roughness: 0.18,
+    emissiveIntensity: 0.06,
+    metalness: 0.94,
+    roughness: 0.22,
     clearcoat: 1,
-    clearcoatRoughness: 0.12,
-    envMapIntensity: 2.4,
+    clearcoatRoughness: 0.14,
+    envMapIntensity: 2.8,
     iridescence: 0.18,
     iridescenceIOR: 1.3,
     iridescenceThicknessRange: [100, 400],

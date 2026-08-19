@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Brain, MessageSquareText } from 'lucide-vue-next'
+import { Brain, MessageSquareText, Paperclip } from 'lucide-vue-next'
 import type { OrbMode, ProcessLogEntry, TextEntry } from '../composables/useVoiceOrb'
 
 defineProps<{
@@ -15,7 +15,7 @@ function formatTime(at: number) {
 
 <template>
   <div class="flex h-full flex-col">
-    <div class="flex items-center gap-2 border-b border-border/50 px-4 py-3">
+    <div class="flex items-center gap-2 border-b border-border px-4 py-3">
       <Brain class="size-3.5 text-muted-foreground" />
       <h2 class="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">思考过程</h2>
       <span
@@ -37,7 +37,7 @@ function formatTime(at: number) {
       </div>
     </div>
 
-    <div class="flex items-center gap-2 border-t border-b border-border/50 px-4 py-3">
+    <div class="flex items-center gap-2 border-t border-b border-border px-4 py-3">
       <MessageSquareText class="size-3.5 text-muted-foreground" />
       <h2 class="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">文字输出</h2>
     </div>
@@ -48,10 +48,20 @@ function formatTime(at: number) {
         <div
           v-for="entry in textHistory.slice().reverse()"
           :key="entry.id"
-          class="rounded-lg border border-border/40 bg-secondary/30 p-2.5"
+          class="rounded-lg border border-border bg-secondary/70 p-2.5"
         >
           <p class="font-mono text-[10px] text-muted-foreground/70">{{ formatTime(entry.at) }}</p>
           <p class="mt-0.5 font-sans text-xs leading-relaxed text-foreground/90">{{ entry.text }}</p>
+          <div v-if="entry.attachments?.length" class="mt-1.5 flex flex-wrap gap-1">
+            <span
+              v-for="name in entry.attachments"
+              :key="name"
+              class="inline-flex items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 font-mono text-[9px] text-secondary-foreground"
+            >
+              <Paperclip class="size-2.5" />
+              {{ name }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
