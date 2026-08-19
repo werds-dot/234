@@ -95,3 +95,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Slow, ambient drift for the fluid background mode — three blurred
+     fields sliding past each other so the surface never feels static
+     without ever reading as decorative "glowing orb" filler. */
+  @keyframes fluid-drift-a {
+    0%,
+    100% {
+      transform: translate3d(-6%, -4%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(8%, 6%, 0) scale(1.12);
+    }
+  }
+  @keyframes fluid-drift-b {
+    0%,
+    100% {
+      transform: translate3d(6%, 4%, 0) scale(1.08);
+    }
+    50% {
+      transform: translate3d(-8%, -6%, 0) scale(1);
+    }
+  }
+  @keyframes fluid-drift-c {
+    0%,
+    100% {
+      transform: translate3d(0%, 6%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(4%, -8%, 0) scale(1.1);
+    }
+  }
+}
