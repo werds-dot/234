@@ -1,10 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useConversationHistory, type TextEntry } from '@/lib/conversation-store'
 
 export type OrbMode = 'idle' | 'listening' | 'thinking' | 'speaking'
 
-export type TextEntry = { id: number; text: string; at: number; attachments?: string[] }
+// Re-exported for backward compatibility: other components import TextEntry
+// from this hook, but the entries themselves now live in the shared
+// ConversationProvider so the workbench home page can read them too.
+export type { TextEntry }
 export type ProcessLogEntry = { id: number; text: string; at: number }
 
 export type OrbAudioRefs = {
@@ -21,11 +25,11 @@ export type OrbAudioRefs = {
  * the scene on every audio sample.
  */
 export function useVoiceOrb() {
+  const { history: textHistory, addEntry } = useConversationHistory()
   const [mode, setMode] = useState<OrbMode>('idle')
   const [micOn, setMicOn] = useState(false)
   const [micError, setMicError] = useState<string | null>(null)
   const [lastText, setLastText] = useState<string | null>(null)
-  const [textHistory, setTextHistory] = useState<TextEntry[]>([])
   const [processLog, setProcessLog] = useState<ProcessLogEntry[]>([])
 
   const modeRef = useRef<OrbMode>('idle')
@@ -99,10 +103,12 @@ export function useVoiceOrb() {
       // Pause mic listening while speaking to avoid the orb reacting to its own voice.
       const wasListening = modeRef.current === 'listening'
       setLastText(trimmed)
-      setTextHistory((prev) => [
-        ...prev,
-        { id: Date.now(), text: trimmed, at: Date.now(), attachments: attachments?.length ? attachments : undefined },
-      ])
+      addEntry({
+        id: Date.now(),
+        text: trimmed,
+        at: Date.now(),
+        attachments: attachments?.length ? attachments : undefined,
+      })
       setMode('thinking')
       pushLog(`收到输入，正在解析文本："${trimmed.slice(0, 24)}${trimmed.length > 24 ? '…' : ''}"`)
 

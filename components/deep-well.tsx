@@ -17,7 +17,11 @@ export function DeepWell({ children }: { children: ReactNode }) {
         style={{ boxShadow: '0 0 120px 40px oklch(0 0 0 / 6%)' }}
       />
       <div
-        className="relative aspect-square w-[min(62vh,62vw,560px)] rounded-full"
+        // overflow-hidden is required here: the WebGL canvas inside is a
+        // plain rectangle, and without clipping, its square corners peek out
+        // past this circular mask whenever the canvas repaints (e.g. while
+        // dragging the orb) instead of being cropped to the circle.
+        className="relative aspect-square w-[min(62vh,62vw,560px)] overflow-hidden rounded-full"
         style={{
           background:
             'radial-gradient(circle at 50% 38%, oklch(0.32 0.006 264) 0%, oklch(0.22 0.005 264) 42%, oklch(0.13 0.004 264) 72%, oklch(0.09 0.003 264) 100%)',
@@ -31,7 +35,7 @@ export function DeepWell({ children }: { children: ReactNode }) {
             boxShadow: 'inset 0 12px 40px 4px oklch(0 0 0 / 50%)',
           }}
         />
-        <div className="absolute inset-0">{children}</div>
+        <div className="absolute inset-0 [&>div]:!size-full [&_canvas]:!size-full">{children}</div>
       </div>
     </div>
   )
