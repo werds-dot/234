@@ -13,7 +13,7 @@ const OrbScene = dynamic(() => import('@/components/orb-scene').then((mod) => mo
 })
 
 export default function Page() {
-  const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, refs } = useVoiceOrb()
+  const { mode, textHistory, processLog, speak, refs } = useVoiceOrb()
 
   return (
     <main className="relative flex h-screen w-full items-stretch overflow-hidden">
@@ -35,10 +35,7 @@ export default function Page() {
 
         <VoiceConsole
           mode={mode}
-          micOn={micOn}
-          micError={micError}
           latestEntry={textHistory.length ? textHistory[textHistory.length - 1] : null}
-          onToggleMic={toggleMic}
           onSpeak={speak}
         />
       </div>

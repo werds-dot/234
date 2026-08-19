@@ -1,6 +1,7 @@
 'use client'
 
 import { useBackground } from '@/lib/background-store'
+import { LiquidChrome } from '@/components/ui/liquid-chrome'
 
 /**
  * Fixed, full-viewport backdrop rendered once at the app root, behind the
@@ -16,25 +17,24 @@ export function BackgroundLayer() {
     <div className="fixed inset-0 -z-10 overflow-hidden bg-background" aria-hidden="true">
       {pref.mode === 'fluid' && (
         <>
+          {/* WebGL liquid-chrome field. A soft radial white wash keeps the
+              center (orb + header text) legible while the metallic marbling
+              stays visible toward the edges behind the frosted panels. */}
+          <div className="absolute inset-0">
+            <LiquidChrome
+              baseColor={[0.16, 0.15, 0.21]}
+              speed={0.4}
+              amplitude={0.4}
+              frequencyX={2.5}
+              frequencyY={2}
+              interactive
+            />
+          </div>
           <div
-            className="absolute -inset-[20%] opacity-60 blur-3xl"
+            className="absolute inset-0"
             style={{
-              background: 'radial-gradient(circle at 30% 30%, oklch(0.86 0.07 55), transparent 60%)',
-              animation: 'fluid-drift-a 28s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute -inset-[20%] opacity-50 blur-3xl"
-            style={{
-              background: 'radial-gradient(circle at 72% 62%, oklch(0.85 0.06 190), transparent 60%)',
-              animation: 'fluid-drift-b 34s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute -inset-[20%] opacity-40 blur-3xl"
-            style={{
-              background: 'radial-gradient(circle at 50% 82%, oklch(0.96 0.005 264), transparent 65%)',
-              animation: 'fluid-drift-c 40s ease-in-out infinite',
+              background:
+                'radial-gradient(circle at 50% 42%, oklch(1 0 0 / 0.55) 0%, oklch(1 0 0 / 0.34) 40%, oklch(1 0 0 / 0.24) 100%)',
             }}
           />
         </>
