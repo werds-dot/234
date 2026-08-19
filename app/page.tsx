@@ -16,7 +16,7 @@ export default function Page() {
   const { mode, micOn, micError, textHistory, processLog, toggleMic, speak, refs } = useVoiceOrb()
 
   return (
-    <main className="relative flex h-screen w-full items-stretch overflow-hidden bg-background">
+    <main className="relative flex h-screen w-full items-stretch overflow-hidden">
       <TiltedPanel side="left">
         <LeftPanel history={textHistory} />
       </TiltedPanel>

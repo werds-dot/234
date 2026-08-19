@@ -1,7 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Settings2, History, LayoutGrid, Sliders, Paperclip } from 'lucide-vue-next'
+import {
+  Settings2,
+  History,
+  LayoutGrid,
+  Sliders,
+  Paperclip,
+  Sparkles,
+  Palette,
+  Upload,
+  Wand2,
+  Languages,
+  Code2,
+  PenLine,
+  X,
+} from 'lucide-vue-next'
 import type { TextEntry } from '../composables/useVoiceOrb'
+import { useBackgroundStore, PRESET_COLORS, type BackgroundMode } from '../composables/useBackgroundStore'
 
 defineProps<{ history: TextEntry[] }>()
 
@@ -9,6 +24,58 @@ const activeTab = ref<'workbench' | 'history' | 'settings'>('workbench')
 
 function formatTime(at: number) {
   return new Date(at).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+// --- Background settings (settings tab) -----------------------------------
+
+const { pref, setMode, setColor, setImage } = useBackgroundStore()
+
+const MODE_OPTIONS: { value: BackgroundMode; label: string }[] = [
+  { value: 'fluid', label: '流体' },
+  { value: 'solid', label: '纯色' },
+  { value: 'image', label: '图片' },
+]
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
+const imageError = ref<string | null>(null)
+
+function handleFileSelected(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  if (!file.type.startsWith('image/')) {
+    imageError.value = '请选择图片文件'
+    return
+  }
+  if (file.size > 4 * 1024 * 1024) {
+    imageError.value = '图片需小于 4MB'
+    return
+  }
+  imageError.value = null
+  const reader = new FileReader()
+  reader.onload = () => setImage(reader.result as string)
+  reader.readAsDataURL(file)
+}
+
+// --- Skill plaza (workbench tab) -------------------------------------------
+
+const SKILLS = [
+  { icon: Wand2, name: '智能改写', desc: '一键优化语言表达与语气' },
+  { icon: Languages, name: '实时翻译', desc: '多语言语音互译，即说即译' },
+  { icon: Code2, name: '代码讲解', desc: '朗读并逐段解释代码片段' },
+  { icon: PenLine, name: '写作教练', desc: '结构化长文写作与润色建议' },
+]
+
+const skillPlazaOpen = ref(false)
+
+function openSkillPlaza() {
+  skillPlazaOpen.value = true
+}
+function closeSkillPlaza() {
+  skillPlazaOpen.value = false
+}
+function onDialogKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape') closeSkillPlaza()
 }
 </script>
 
@@ -57,6 +124,22 @@ function formatTime(at: number) {
             拖动球体可将其拉伸变形，松手后会弹性回弯。开启麦克风或输入文字都会让它随声音起伏。
           </p>
         </div>
+
+        <button
+          type="button"
+          class="group flex w-full items-center justify-between rounded-lg border border-border bg-secondary/80 p-3 text-left transition-colors hover:bg-secondary"
+          @click="openSkillPlaza"
+        >
+          <span class="flex items-center gap-2">
+            <Sparkles class="size-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
+            <span class="font-sans text-xs text-foreground/90">技能广场</span>
+          </span>
+          <span
+            class="inline-flex items-center rounded-full bg-secondary px-1.5 py-0.5 font-mono text-[9px] text-secondary-foreground"
+          >
+            {{ SKILLS.length }}
+          </span>
+        </button>
       </div>
     </div>
 
@@ -90,6 +173,68 @@ function formatTime(at: number) {
     <div v-else class="flex-1 overflow-hidden p-4">
       <h2 class="mb-3 font-mono text-[11px] tracking-widest text-muted-foreground uppercase">设置</h2>
       <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-3 rounded-lg border border-border bg-secondary/80 p-3">
+          <span class="flex items-center gap-2 font-sans text-xs text-foreground/90">
+            <Palette class="size-3.5 text-muted-foreground" />
+            全局背景
+          </span>
+
+          <div class="grid grid-cols-3 gap-1 rounded-md border border-border p-0.5">
+            <button
+              v-for="opt in MODE_OPTIONS"
+              :key="opt.value"
+              type="button"
+              class="rounded-[5px] py-1.5 font-mono text-[11px] transition-colors"
+              :class="
+                pref.mode === opt.value
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              "
+              @click="setMode(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+
+          <div v-if="pref.mode === 'solid'" class="flex items-center gap-2 pt-1">
+            <button
+              v-for="color in PRESET_COLORS"
+              :key="color"
+              type="button"
+              aria-label="选择背景颜色"
+              :aria-pressed="pref.color === color"
+              class="size-6 shrink-0 rounded-full border-2 transition-transform"
+              :class="pref.color === color ? 'border-primary scale-110' : 'border-border'"
+              :style="{ backgroundColor: color }"
+              @click="setColor(color)"
+            />
+          </div>
+
+          <div v-else-if="pref.mode === 'image'" class="flex flex-col gap-2 pt-1">
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              aria-hidden="true"
+              tabindex="-1"
+              @change="handleFileSelected"
+            />
+            <button
+              type="button"
+              class="flex items-center justify-start gap-2 rounded-md border border-border bg-transparent px-3 py-1.5 font-mono text-[11px] text-foreground/90 transition-colors hover:bg-secondary"
+              @click="fileInputRef?.click()"
+            >
+              <Upload class="size-3.5" />
+              上传图片
+            </button>
+            <div v-if="pref.imageDataUrl" class="h-16 w-full overflow-hidden rounded-md border border-border">
+              <img :src="pref.imageDataUrl" alt="背景预览" class="size-full object-cover" />
+            </div>
+            <p v-if="imageError" class="font-mono text-[10px] text-destructive">{{ imageError }}</p>
+          </div>
+        </div>
+
         <div class="flex items-center justify-between rounded-lg border border-border bg-secondary/80 p-3">
           <span class="flex items-center gap-2 font-sans text-xs text-foreground/90">
             <Sliders class="size-3.5 text-muted-foreground" />
@@ -108,4 +253,56 @@ function formatTime(at: number) {
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="skillPlazaOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="技能广场"
+      tabindex="-1"
+      @click.self="closeSkillPlaza"
+      @keydown="onDialogKeydown"
+    >
+      <div class="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl">
+        <div class="mb-4 flex items-start justify-between gap-2">
+          <div>
+            <h3 class="flex items-center gap-2 font-sans text-sm font-medium text-foreground">
+              <Sparkles class="size-4 text-primary" />
+              技能广场
+            </h3>
+            <p class="mt-1 font-mono text-[11px] text-muted-foreground">为磁体球扩展专项能力，即将开放接入</p>
+          </div>
+          <button
+            type="button"
+            aria-label="关闭"
+            class="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            @click="closeSkillPlaza"
+          >
+            <X class="size-4" />
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div
+            v-for="skill in SKILLS"
+            :key="skill.name"
+            class="flex flex-col gap-1.5 rounded-lg border border-border bg-secondary/70 p-3"
+          >
+            <div class="flex items-center justify-between">
+              <component :is="skill.icon" class="size-4 text-muted-foreground" />
+              <span
+                class="rounded-full border border-border px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground"
+              >
+                即将上线
+              </span>
+            </div>
+            <p class="font-sans text-xs font-medium text-foreground/90">{{ skill.name }}</p>
+            <p class="font-mono text-[10px] leading-relaxed text-muted-foreground">{{ skill.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>

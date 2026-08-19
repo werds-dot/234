@@ -62,3 +62,34 @@ body {
 .thin-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Slow, ambient drift for the fluid background mode: three blurred tinted
+   fields sliding past each other behind the frosted-glass panels so the
+   surface stays alive without reading as decorative filler. */
+@keyframes fluid-drift-a {
+  0%,
+  100% {
+    transform: translate3d(-6%, -4%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8%, 6%, 0) scale(1.15);
+  }
+}
+@keyframes fluid-drift-b {
+  0%,
+  100% {
+    transform: translate3d(6%, 5%, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(-9%, -6%, 0) scale(1);
+  }
+}
+@keyframes fluid-drift-c {
+  0%,
+  100% {
+    transform: translate3d(0%, 7%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, -8%, 0) scale(1.12);
+  }
+}
