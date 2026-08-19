@@ -29,7 +29,7 @@ export function TiltedPanel({
     >
       <div
         className={cn(
-          'h-[88%] w-full border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl',
+          'h-[88%] w-full overflow-hidden border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl',
           side === 'left' ? 'rounded-r-2xl border-l-0' : 'rounded-l-2xl border-r-0',
           className,
         )}

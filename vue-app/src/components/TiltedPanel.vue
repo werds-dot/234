@@ -12,7 +12,7 @@ const { side } = defineProps<{ side: 'left' | 'right' }>()
     style="perspective: 1600px; width: clamp(248px, 21vw, 372px)"
   >
     <div
-      class="h-[88%] w-full border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl"
+      class="h-[88%] w-full overflow-hidden border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl"
       :class="side === 'left' ? 'rounded-r-2xl border-l-0' : 'rounded-l-2xl border-r-0'"
       :style="{
         transform: side === 'left' ? 'rotateY(14deg)' : 'rotateY(-14deg)',
