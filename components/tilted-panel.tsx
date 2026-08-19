@@ -20,7 +20,7 @@ export function TiltedPanel({
   return (
     <div
       className="hidden shrink-0 md:flex md:items-center md:justify-center"
-      style={{ perspective: '1600px', width: 'clamp(200px, 17vw, 260px)' }}
+      style={{ perspective: '1600px', width: 'clamp(248px, 21vw, 372px)' }}
     >
       <div
         className={cn(

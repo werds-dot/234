@@ -128,3 +128,28 @@
     }
   }
 }
+
+/* Filmstrip bezel around the deep well: a dark photographic-film band ringed
+   with evenly spaced sprocket perforations, replacing the plain white halo so
+   the orb reads as if seen through a film-reel gate. Percentages are relative
+   to the element radius (closest-side), so the band tucks just under the
+   well's edge and the perforations sit centered within the visible bezel. */
+.film-ring {
+  background: radial-gradient(circle closest-side at 50% 34%, oklch(0.27 0.008 60), oklch(0.16 0.006 60) 72%);
+  -webkit-mask: radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+  mask: radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+}
+.film-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* light punch-outs every 6deg (60 perforations around the reel) */
+  background: repeating-conic-gradient(
+    from 0deg,
+    oklch(0.96 0.004 250) 0deg 1.5deg,
+    transparent 1.5deg 6deg
+  );
+  -webkit-mask: radial-gradient(circle closest-side at center, transparent 0 90%, #000 90.7% 96.3%, transparent 97%);
+  mask: radial-gradient(circle closest-side at center, transparent 0 90%, #000 90.7% 96.3%, transparent 97%);
+}

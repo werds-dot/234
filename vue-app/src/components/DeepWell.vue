@@ -6,12 +6,18 @@
 
 <template>
   <div class="relative flex size-full items-center justify-center">
-    <!-- Soft ambient halo so the dark well reads as an intentional spotlight
-         against the white page instead of a harsh floating disc. -->
+    <!-- Soft ambient halo so the film bezel reads as an intentional spotlight
+         against the page instead of a harsh floating disc. -->
     <div class="well-halo" />
+    <!-- Filmstrip bezel (dark film band + sprocket perforations) ringing the
+         well, in place of the former plain white halo. -->
+    <div class="film-ring" />
     <div class="well">
       <div class="well-inner-shadow" />
-      <div class="absolute inset-0">
+      <!-- overflow-hidden here mirrors the React well: the WebGL canvas is a
+           plain rectangle, so without clipping its square corners bleed out
+           past this circular mask while the orb repaints (e.g. mid-drag). -->
+      <div class="absolute inset-0 overflow-hidden rounded-full">
         <slot />
       </div>
     </div>
@@ -23,9 +29,38 @@
   pointer-events: none;
   position: absolute;
   aspect-ratio: 1 / 1;
-  width: min(70vh, 70vw, 640px);
+  width: min(74vh, 74vw, 676px);
   border-radius: 9999px;
   box-shadow: 0 0 120px 40px oklch(0 0 0 / 6%);
+}
+
+/* Filmstrip bezel ringing the well: a dark photographic-film band with evenly
+   spaced sprocket perforations, replacing the former plain white halo.
+   Percentages are relative to the element radius (closest-side), so the band
+   tucks just under the well's edge and the holes sit centered in the bezel. */
+.film-ring {
+  pointer-events: none;
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  width: min(70vh, 70vw, 632px);
+  border-radius: 9999px;
+  background: radial-gradient(circle closest-side at 50% 34%, oklch(0.27 0.008 60), oklch(0.16 0.006 60) 72%);
+  -webkit-mask: radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+  mask: radial-gradient(circle closest-side at center, transparent 0 87%, #000 88% 99.4%, transparent 100%);
+}
+.film-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* light punch-outs every 6deg (60 perforations around the reel) */
+  background: repeating-conic-gradient(
+    from 0deg,
+    oklch(0.96 0.004 250) 0deg 1.5deg,
+    transparent 1.5deg 6deg
+  );
+  -webkit-mask: radial-gradient(circle closest-side at center, transparent 0 90%, #000 90.7% 96.3%, transparent 97%);
+  mask: radial-gradient(circle closest-side at center, transparent 0 90%, #000 90.7% 96.3%, transparent 97%);
 }
 
 .well {

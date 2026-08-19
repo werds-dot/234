@@ -8,7 +8,7 @@ const { side } = defineProps<{ side: 'left' | 'right' }>()
 <template>
   <div
     class="hidden shrink-0 md:flex md:items-center md:justify-center"
-    style="perspective: 1600px; width: clamp(200px, 17vw, 260px)"
+    style="perspective: 1600px; width: clamp(248px, 21vw, 372px)"
   >
     <div
       class="h-[88%] border border-border bg-card/80 shadow-2xl shadow-black/10 backdrop-blur-xl"

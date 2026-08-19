@@ -10,12 +10,15 @@ import type { ReactNode } from 'react'
 export function DeepWell({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex size-full items-center justify-center">
-      {/* Soft ambient halo so the dark well reads as an intentional spotlight
-          against the white page instead of a harsh floating disc. */}
+      {/* Soft ambient halo so the film bezel reads as an intentional spotlight
+          against the page instead of a harsh floating disc. */}
       <div
-        className="pointer-events-none absolute aspect-square w-[min(70vh,70vw,640px)] rounded-full"
+        className="pointer-events-none absolute aspect-square w-[min(74vh,74vw,676px)] rounded-full"
         style={{ boxShadow: '0 0 120px 40px oklch(0 0 0 / 6%)' }}
       />
+      {/* Filmstrip bezel (dark film band + sprocket perforations) ringing the
+          well, in place of the former plain white halo. */}
+      <div className="film-ring pointer-events-none absolute aspect-square w-[min(70vh,70vw,632px)] rounded-full" />
       <div
         // overflow-hidden is required here: the WebGL canvas inside is a
         // plain rectangle, and without clipping, its square corners peek out
